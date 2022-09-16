@@ -1,0 +1,11 @@
+prefix=/home/lele/Codes/epos/repository/external/osmesa
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: glu
+Description: Mesa OpenGL Utility library
+Requires: osmesa
+Version: 9.0.0
+Libs: -L${libdir} -lGLU
+Libs.private: -lm

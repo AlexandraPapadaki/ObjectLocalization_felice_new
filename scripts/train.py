@@ -17,6 +17,8 @@ from epos_lib import loss
 from epos_lib import misc
 from epos_lib import model
 from epos_lib import train_utils
+import matplotlib.pyplot as plt
+import time
 
 
 # Flags (other common flags are defined in epos_lib/common.py; the flag values
@@ -54,7 +56,7 @@ flags.DEFINE_integer(
   'log_steps', 100,
   'Display logging information at every log_steps.')
 flags.DEFINE_integer(
-  'save_interval_steps', 50000,
+  'save_interval_steps', 50000,   #50000
   'How often, in number of training steps, we save the model to disk.')
 flags.DEFINE_integer(
   'max_checkpoints_to_keep', 40,
@@ -101,7 +103,7 @@ flags.DEFINE_float(
   'learning_power', 0.9,
   'The power value used in the poly learning policy.')
 flags.DEFINE_integer(
-  'train_steps', 2000000,
+  'train_steps', 2000000,   #2000000
   'The number of steps used for training')
 flags.DEFINE_float(
   'momentum', 0.9,
@@ -402,10 +404,17 @@ def _train_epos_model(iterator,
       print_inputs += [name + ':', loss]
 
     should_log = math_ops.equal(math_ops.mod(global_step, FLAGS.log_steps), 0)
+    # TODO spreader define path TODO car
     print_op = tf.cond(
         should_log,
-        lambda: tf.print(*print_inputs),
+        lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Car_runs/Results/Run/output.txt"), #TODO car define path
+        #lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Spreader_runs/Results/Run5/output.txt"), # TODO car
         lambda: tf.no_op())
+
+    # print_op = tf.cond(
+    #     should_log,
+    #     lambda: tf.print(*print_inputs),
+    #     lambda: tf.no_op())
 
     # Add a summary for the total loss.
     # tf.summary.scalar('losses/total_loss', total_loss)
@@ -419,6 +428,7 @@ def _train_epos_model(iterator,
 
 
 def main(unused_argv):
+  time_start = time.time()
   tf.logging.set_verbosity(tf.logging.INFO)
 
   # Model folder.
@@ -553,6 +563,8 @@ def main(unused_argv):
         ) as sess:
           while not sess.should_stop():
             sess.run([train_tensor])
+  trainingTime = time.time() - time_start
+  print("Training finished in: ", trainingTime)
 
 
 if __name__ == '__main__':

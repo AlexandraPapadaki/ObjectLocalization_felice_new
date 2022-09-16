@@ -1,0 +1,12 @@
+prefix=/home/lele/Codes/epos/repository/external/osmesa
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: osmesa
+Description: Mesa Off-screen Rendering library
+Requires: 
+Version: 8
+Libs: -L${libdir} -lOSMesa32
+Libs.private: -lm -lpthread -pthread  -ldl
+Cflags: -I${includedir}

@@ -124,16 +124,16 @@ flags.DEFINE_boolean(
   'vis', False,
   'Global switch for visualizations.')
 flags.DEFINE_boolean(
-  'vis_gt_poses', True,
+  'vis_gt_poses', False, #TODO default is True
   'Whether to visualize the GT poses.')
 flags.DEFINE_boolean(
   'vis_pred_poses', True,
   'Whether to visualize the predicted poses.')
 flags.DEFINE_boolean(
-  'vis_gt_obj_labels', True,
+  'vis_gt_obj_labels', False, #TODO default is True
   'Whether to visualize the GT object labels.')
 flags.DEFINE_boolean(
-  'vis_pred_obj_labels', True,
+  'vis_pred_obj_labels',False, #TODO default is True
   'Whether to visualize the predicted object labels.')
 flags.DEFINE_boolean(
   'vis_pred_obj_confs', False,
@@ -163,6 +163,7 @@ def visualize(
     renderer: Renderer of class bop_renderer.Renderer().
     vis_dir: Directory where the visualizations will be saved.
   """
+  
   tf.logging.info('Visualization for: {}'.format(
     samples[common.IMAGE_PATH][0].decode('utf8')))
 
@@ -380,6 +381,8 @@ def process_image(
   # Intrinsic parameters.
   K = samples[common.K][0]
 
+  # # TODO assign random gt
+  # TODO commented
   if task_type == common.LOCALIZATION:
     gt_poses = []
     gt_obj_ids = samples[common.GT_OBJ_IDS][0]
@@ -390,6 +393,7 @@ def process_image(
       gt_poses.append({'obj_id': gt_obj_ids[gt_id], 'R': R, 't': t})
   else:
     gt_poses = None
+  # TODO commented
 
   # Establish many-to-many 2D-3D correspondences.
   time_start = time.time()
@@ -577,7 +581,7 @@ def main(unused_argv):
   vis_dir = os.path.join(model_dir, 'vis')
   tf.gfile.MakeDirs(vis_dir)
 
-  # TFRecord files used for training.
+  # TFRecord files used for training. # TODO see for tfrecords
   tfrecord_names = FLAGS.infer_tfrecord_names
   if not isinstance(FLAGS.infer_tfrecord_names, list):
     tfrecord_names = [FLAGS.infer_tfrecord_names]
@@ -604,7 +608,7 @@ def main(unused_argv):
     # Dataset provider.
     dataset = datagen.Dataset(
       dataset_name=FLAGS.dataset,
-      tfrecord_names=tfrecord_names,
+      tfrecord_names=tfrecord_names, # TODO see for tfrecords
       model_dir=model_dir,
       model_variant=FLAGS.model_variant,
       batch_size=1,
@@ -640,7 +644,7 @@ def main(unused_argv):
       tf.logging.info('Renderer initialized.')
 
     # Inputs.
-    samples = dataset.get_one_shot_iterator().get_next()
+    samples = dataset.get_one_shot_iterator().get_next() # TODO see for tfrecords
 
     # A map from output type to the number of associated channels.
     outputs_to_num_channels = common.get_outputs_to_num_channels(
@@ -655,7 +659,7 @@ def main(unused_argv):
 
     # Construct the inference graph.
     predictions = model.predict(
-        images=samples[common.IMAGE],
+        images=samples[common.IMAGE], # TODO see for tfrecords
         model_options=model_options,
         upsample_logits=FLAGS.upsample_logits,
         image_pyramid=FLAGS.image_pyramid,
@@ -677,7 +681,7 @@ def main(unused_argv):
     tf.logging.info('Starting inference at: {}'.format(time_str))
     tf.logging.info('Inference with model: {}'.format(checkpoint_path))
 
-    # Scaffold for initialization.
+     # Scaffold for initialization.
     scaffold = tf.train.Scaffold(
       init_op=tf.global_variables_initializer(),
       saver=tf.train.Saver(var_list=misc.get_variable_dict()))
@@ -687,8 +691,8 @@ def main(unused_argv):
       tf_config = tf.ConfigProto(device_count={'GPU': 0})
     else:
       tf_config = tf.ConfigProto()
-      # tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory.
-      tf_config.gpu_options.allow_growth = False
+      tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory. # lele
+      #tf_config.gpu_options.allow_growth = False
 
     # Nodes that can use multiple threads to parallelize their execution will
     # schedule the individual pieces into this pool.
@@ -699,12 +703,13 @@ def main(unused_argv):
 
     poses_all = []
     first_im_poses_num = 0
-
+    
     session_creator = tf.train.ChiefSessionCreator(
         config=tf_config,
         scaffold=scaffold,
         master=FLAGS.master,
         checkpoint_filename_with_path=checkpoint_path)
+
     with tf.train.MonitoredSession(
           session_creator=session_creator, hooks=None) as sess:
 
@@ -714,7 +719,7 @@ def main(unused_argv):
         # Estimate object poses for the current image.
         poses, run_times = process_image(
             sess=sess,
-            samples=samples,
+            samples=samples, # TODO see for tfrecords
             predictions=predictions,
             im_ind=im_ind,
             crop_size=dataset.crop_size,
@@ -747,6 +752,8 @@ def main(unused_argv):
       time_avg /= float((len(poses_all)))
     for i in range(first_im_poses_num):
       poses_all[i]['time'] = time_avg
+
+    #print(poses_all)
 
     # Save the estimated poses in the BOP format:
     # https://bop.felk.cvut.cz/challenges/bop-challenge-2020/#formatofresults
