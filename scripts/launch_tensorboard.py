@@ -5,7 +5,7 @@
 Example:
 python launch_tensorboard.py
   --models=tless-bop20-xc65-f64,ycbv-bop20-xc65-f64
-  --port=8008
+  --port=localhost:8008
 """
 
 import os
@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
   '--models', help='Comma-separated names of models.')
 parser.add_argument(
-  '--port', help='HTTP port to run TensorBoard on.', default=8008)
+  '--port', help='HTTP port to run TensorBoard on.', default=8096)
 args = parser.parse_args()
 
 model_list = args.models.split(',')

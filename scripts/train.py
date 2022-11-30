@@ -17,6 +17,8 @@ from epos_lib import loss
 from epos_lib import misc
 from epos_lib import model
 from epos_lib import train_utils
+import matplotlib.pyplot as plt
+import time
 
 
 # Flags (other common flags are defined in epos_lib/common.py; the flag values
@@ -402,9 +404,10 @@ def _train_epos_model(iterator,
       print_inputs += [name + ':', loss]
 
     should_log = math_ops.equal(math_ops.mod(global_step, FLAGS.log_steps), 0)
+    # TODO car define output path
     print_op = tf.cond(
         should_log,
-        lambda: tf.print(*print_inputs),
+        lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Car_runs/Results/Run/output.txt"), #TODO car define path
         lambda: tf.no_op())
 
     # Add a summary for the total loss.
@@ -419,6 +422,7 @@ def _train_epos_model(iterator,
 
 
 def main(unused_argv):
+  time_start = time.time()
   tf.logging.set_verbosity(tf.logging.INFO)
 
   # Model folder.
@@ -553,6 +557,8 @@ def main(unused_argv):
         ) as sess:
           while not sess.should_stop():
             sess.run([train_tensor])
+  trainingTime = time.time() - time_start
+  print("Training finished in: ", trainingTime)
 
 
 if __name__ == '__main__':

@@ -687,8 +687,8 @@ def main(unused_argv):
       tf_config = tf.ConfigProto(device_count={'GPU': 0})
     else:
       tf_config = tf.ConfigProto()
-      # tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory.
-      tf_config.gpu_options.allow_growth = False
+      tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory.
+      #tf_config.gpu_options.allow_growth = False
 
     # Nodes that can use multiple threads to parallelize their execution will
     # schedule the individual pieces into this pool.
@@ -747,6 +747,8 @@ def main(unused_argv):
       time_avg /= float((len(poses_all)))
     for i in range(first_im_poses_num):
       poses_all[i]['time'] = time_avg
+
+    #print(poses_all)
 
     # Save the estimated poses in the BOP format:
     # https://bop.felk.cvut.cz/challenges/bop-challenge-2020/#formatofresults

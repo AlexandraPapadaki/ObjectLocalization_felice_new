@@ -30,6 +30,7 @@ from bop_toolkit_lib import inout
 from epos_lib import common
 from epos_lib import config
 from epos_lib import tfrecord
+import glob
 
 
 # Flags (other common flags are defined in epos_lib/common.py.
@@ -92,7 +93,20 @@ def main(_):
     example_list = []
     for scene_id in FLAGS.scene_ids:
       scene_gt_fpath = dp_split['scene_gt_tpath'].format(scene_id=scene_id)
-      im_ids = inout.load_scene_gt(scene_gt_fpath).keys()
+
+      # TODO car
+      scene_ids_fromFolder = os.path.split(scene_gt_fpath)
+      imagesListed = glob.glob(os.path.join(str(scene_ids_fromFolder[0]) + '/rgb', '*.png'))
+      im_ids=[]
+      for i in range(0, len(imagesListed)):
+        imagesListed_withoutPath = (imagesListed[i].rsplit('/'))[-1]  # cut off path
+        imagesListed_withoutPathAndFormat = (imagesListed_withoutPath.split('.'))[0]  # cut off format
+        im_ids.append(int(imagesListed_withoutPathAndFormat))
+      im_ids = sorted(im_ids)
+      #print(im_ids)
+      # TODO car
+
+      #im_ids = inout.load_scene_gt(scene_gt_fpath).keys() # TODO car. this is the default for im_ids. Use the above instead to read images directly from the images folder, without needing gt
       for im_id in sorted(im_ids):
         example_list.append({'scene_id': scene_id, 'im_id': im_id})
 
