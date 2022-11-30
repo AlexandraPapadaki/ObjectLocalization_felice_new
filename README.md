@@ -1,5 +1,7 @@
 
-# EPOS: Estimating 6D Pose of Objects with Symmetries
+# Object detection and localization code int he context of FELICE
+
+EPOS: Estimating 6D Pose of Objects with Symmetries
 
 This repository provides the source code and trained models of the 6D object pose estimation method presented in:
 
