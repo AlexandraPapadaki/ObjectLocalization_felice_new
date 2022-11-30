@@ -276,7 +276,11 @@ class Dataset(object):
       if model_type_frag_str is None:
         model_type_frag_str = 'original'
       tf.logging.info('Type of models: {}'.format(model_type_frag_str))
-
+      
+      #print(self.models)
+      #print(self.dataset_name)
+      #print(self.num_frags)
+      
       # Load 3D object models for fragmentation.
       model_store_frag = ObjectModelStore(
         dataset_name=self.dataset_name,
@@ -491,6 +495,7 @@ class Dataset(object):
     gt_obj_quats = None
     gt_obj_trans = None
     gt_obj_masks = None
+    #gt_obj_visib_fracts = None 
     if self.return_gt_orig or self.return_gt_maps:
 
       # Decode object annotations (for evaluation).
@@ -499,6 +504,8 @@ class Dataset(object):
       gt_obj_ids = tf.sparse_tensor_to_dense(feat['image/object/id'])
       gt_obj_visib_fracts = tf.sparse_tensor_to_dense(
         feat['image/object/visibility'])
+      #print("gt_obj_ids", gt_obj_ids[0])
+      #print("gt_obj_visib_fracts", gt_obj_visib_fracts[0])
 
       # Shape: [num_gts, 4]
       gt_obj_quats = tf.stack([
@@ -514,12 +521,27 @@ class Dataset(object):
         tf.sparse_tensor_to_dense(feat['image/object/pose/t2']),
         tf.sparse_tensor_to_dense(feat['image/object/pose/t3'])
       ], axis=1)
+      # gt_obj_quats = tf.stack([
+      #   tf.sparse_tensor_to_dense([]),
+      #   tf.sparse_tensor_to_dense([]),
+      #   tf.sparse_tensor_to_dense([]),
+      #   tf.sparse_tensor_to_dense([])
+      # ], axis=1)
+      #
+      # # Shape: [num_gts, 3]
+      # gt_obj_trans = tf.stack([
+      #   tf.sparse_tensor_to_dense([]),
+      #   tf.sparse_tensor_to_dense([]),
+      #   tf.sparse_tensor_to_dense([])
+      # ], axis=1)
 
       # Object instance masks.
       # ------------------------------------------------------------------------
       # Shape: [num_gts, height, width]
       gt_obj_masks = self._decode_png_instance_masks(
         feat['image/object/mask'], im_w_orig, im_h_orig)
+      # gt_obj_masks = self._decode_png_instance_masks(
+      #   [], im_w_orig, im_h_orig)
 
       # Resize the masks to the scaled input size.
       gt_obj_masks = tf.cast(tf.expand_dims(gt_obj_masks, axis=3), tf.uint8)
