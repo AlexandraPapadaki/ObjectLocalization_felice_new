@@ -1,5 +1,5 @@
 
-# Object detection and localization code int he context of FELICE
+# Object detection and localization code in the context of FELICE based on:
 
 EPOS: Estimating 6D Pose of Objects with Symmetries
 
