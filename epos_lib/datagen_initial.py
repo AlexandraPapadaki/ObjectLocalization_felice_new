@@ -224,8 +224,8 @@ class Dataset(object):
     self.gt_knn_frags = gt_knn_frags
     self.output_stride = output_stride
     self.is_training = is_training
-    self.return_gt_orig = return_gt_orig#False #TODO turned to false return_gt_orig
-    self.return_gt_maps = return_gt_maps#False #TODO turned to false return_gt_maps
+    self.return_gt_orig = return_gt_orig
+    self.return_gt_maps = return_gt_maps
     self.should_shuffle = should_shuffle
     self.should_repeat = should_repeat
     self.prepare_for_projection = prepare_for_projection
@@ -276,11 +276,7 @@ class Dataset(object):
       if model_type_frag_str is None:
         model_type_frag_str = 'original'
       tf.logging.info('Type of models: {}'.format(model_type_frag_str))
-      
-      #print(self.models)
-      #print(self.dataset_name)
-      #print(self.num_frags)
-      
+
       # Load 3D object models for fragmentation.
       model_store_frag = ObjectModelStore(
         dataset_name=self.dataset_name,
@@ -496,18 +492,14 @@ class Dataset(object):
     gt_obj_quats = None
     gt_obj_trans = None
     gt_obj_masks = None
-    #gt_obj_visib_fracts = None # TODO my addition
     if self.return_gt_orig or self.return_gt_maps:
-      # TODO commented
+
       # Decode object annotations (for evaluation).
       # ------------------------------------------------------------------------
       # Shape: [num_gts, 1]
-
       gt_obj_ids = tf.sparse_tensor_to_dense(feat['image/object/id'])
       gt_obj_visib_fracts = tf.sparse_tensor_to_dense(
         feat['image/object/visibility'])
-      #print("gt_obj_ids", gt_obj_ids[0])
-      #print("gt_obj_visib_fracts", gt_obj_visib_fracts[0])
 
       # Shape: [num_gts, 4]
       gt_obj_quats = tf.stack([
@@ -523,27 +515,12 @@ class Dataset(object):
         tf.sparse_tensor_to_dense(feat['image/object/pose/t2']),
         tf.sparse_tensor_to_dense(feat['image/object/pose/t3'])
       ], axis=1)
-      # gt_obj_quats = tf.stack([
-      #   tf.sparse_tensor_to_dense([]),
-      #   tf.sparse_tensor_to_dense([]),
-      #   tf.sparse_tensor_to_dense([]),
-      #   tf.sparse_tensor_to_dense([])
-      # ], axis=1)
-      #
-      # # Shape: [num_gts, 3]
-      # gt_obj_trans = tf.stack([
-      #   tf.sparse_tensor_to_dense([]),
-      #   tf.sparse_tensor_to_dense([]),
-      #   tf.sparse_tensor_to_dense([])
-      # ], axis=1)
 
       # Object instance masks.
       # ------------------------------------------------------------------------
       # Shape: [num_gts, height, width]
       gt_obj_masks = self._decode_png_instance_masks(
         feat['image/object/mask'], im_w_orig, im_h_orig)
-      # gt_obj_masks = self._decode_png_instance_masks(
-      #   [], im_w_orig, im_h_orig)
 
       # Resize the masks to the scaled input size.
       gt_obj_masks = tf.cast(tf.expand_dims(gt_obj_masks, axis=3), tf.uint8)
@@ -590,7 +567,6 @@ class Dataset(object):
         gt_obj_quats = tf.gather(gt_obj_quats, kept_gt_ids)
         gt_obj_trans = tf.gather(gt_obj_trans, kept_gt_ids)
         gt_obj_masks = tf.gather(gt_obj_masks, kept_gt_ids)
-      # TODO commented
 
       # Make sure the object masks are exclusive (this is assumed when
       # constructing the ground-truth fields).
@@ -710,12 +686,19 @@ class Dataset(object):
 
     files = self._get_all_tfrecords() # TODO see for tfrecords
     dataset = tf.data.Dataset.from_tensor_slices(files)
+    # print("////////////////////////////////////////////////////////////////////////////////////////////////")
+    # tf.config.run_functions_eagerly(True)
+    # for ele in dataset:
+    #   print("Dataset slices: ")
+    #   print(ele.numpy())
 
     dataset = dataset.interleave(
       lambda x: tf.data.TFRecordDataset(
         x, num_parallel_reads=num_readers).map(
         self._parse_and_preprocess, num_parallel_calls=num_readers),
       cycle_length=len(files), block_length=1, num_parallel_calls=num_readers)
+
+    print("Dataset is: ", dataset)
 
     if self.should_shuffle:
       dataset = dataset.shuffle(buffer_size=self.buffer_size)

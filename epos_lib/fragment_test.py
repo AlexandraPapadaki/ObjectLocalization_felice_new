@@ -15,7 +15,6 @@ def fragmentation_fps_test():
   output_dir = 'fragmentation_test_output'
   misc.ensure_dir(output_dir)
 
-  # TODO car add dataset
   datasets = ['hb', 'ycbv', 'tless', 'lmo', 'icbin', 'itodd', 'tudl', 'car', 'carObj1', 'carObj13']
 
   for dataset in datasets:
