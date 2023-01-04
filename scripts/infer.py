@@ -674,8 +674,10 @@ def main(unused_argv):
     # Get path to the model checkpoint.
     if FLAGS.checkpoint_name is None:
       checkpoint_path = tf.train.latest_checkpoint(checkpoint_dir)
+      tf.logging.info("Flag none and dir ", checkpoint_dir )
     else:
       checkpoint_path = os.path.join(checkpoint_dir, FLAGS.checkpoint_name)
+      tf.logging.info("Flag not none and dir ", checkpoint_dir)
 
     time_str = time.strftime('%Y-%m-%d-%H:%M:%S', time.gmtime())
     tf.logging.info('Starting inference at: {}'.format(time_str))
