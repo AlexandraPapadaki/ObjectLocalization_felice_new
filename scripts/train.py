@@ -404,11 +404,18 @@ def _train_epos_model(iterator,
       print_inputs += [name + ':', loss]
 
     should_log = math_ops.equal(math_ops.mod(global_step, FLAGS.log_steps), 0)
+<<<<<<< HEAD
     # TODO spreader define path TODO car
     print_op = tf.cond(
         should_log,
         lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Car_runs/Results/Run/output.txt"), #TODO car define path
         #lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Spreader_runs/Results/Run5/output.txt"), # TODO car
+=======
+    # TODO car define output path
+    print_op = tf.cond(
+        should_log,
+        lambda: tf.print(*print_inputs, output_stream="file:///media/lele/D/Car_runs/Results/Run/output.txt"), #TODO car define path
+>>>>>>> fc6661a68d5dc65c9536121e742a5d1a588aade9
         lambda: tf.no_op())
 
     # print_op = tf.cond(

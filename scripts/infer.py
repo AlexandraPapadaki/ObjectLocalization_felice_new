@@ -693,7 +693,11 @@ def main(unused_argv):
       tf_config = tf.ConfigProto(device_count={'GPU': 0})
     else:
       tf_config = tf.ConfigProto()
+<<<<<<< HEAD
       tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory. # lele
+=======
+      tf_config.gpu_options.allow_growth = True  # Only necessary GPU memory.
+>>>>>>> fc6661a68d5dc65c9536121e742a5d1a588aade9
       #tf_config.gpu_options.allow_growth = False
 
     # Nodes that can use multiple threads to parallelize their execution will
